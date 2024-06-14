@@ -1,8 +1,10 @@
 const cors = require('cors')
 const express = require('express')
 
-const dotenv = require('dotenv');
-dotenv.config();
+if (process.env.NODE_ENV !== 'production') {
+    const dotenv = require('dotenv');
+    dotenv.config();
+}
 
 const { ACCESS_USER, ACCESS_ROLE, ACCESS_LABORATORY } = require('./constant')
 
