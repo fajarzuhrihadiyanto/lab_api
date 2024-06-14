@@ -1,0 +1,21 @@
+const ADMINISTRATOR = 0
+const GIGA_WRITER = 1
+const GIGA_READER = 2
+const AJK_WRITER = 3
+const AJK_READER = 4
+const KCV_WRITER = 5
+const KCV_READER = 6
+const NCC_WRITER = 7
+const NCC_READER = 8
+const RPL_WRITER = 9
+const RPL_READER = 10
+const APLRO_WRITER = 11
+const APLRO_READER = 12
+const MCI_WRITER = 13
+const MCI_READER = 14
+const PKT_WRITER = 15
+const PKT_READER = 16
+
+exports.ACCESS_LABORATORY = 101
+exports.ACCESS_USER = 102
+exports.ACCESS_ROLE = 103
