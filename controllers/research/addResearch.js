@@ -69,6 +69,7 @@ exports.addResearchController = async (req, res) => {
             data: {
                 research: {
                     ...newResearch,
+                    id: newResearch.id,
                     lab_id: newResearch.lab_id.id,
                     professor_id: newResearch.professor_id?.id,
                     created_at: newResearch.created_at.toDate(),

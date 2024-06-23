@@ -5,12 +5,11 @@ exports.getAllLabsController = async (req, res) => {
         const result = []
 
         //#region  //*=========== Find lab ===========
-        const snapshot = await db.collection('Labs').get();
+        const snapshot = await db.collection('Labs').orderBy('created_at').get();
         snapshot.forEach((doc) => {
             result.push({
                 id: doc.id,
                 ...doc.data(),
-                head_lab_id: doc.data().head_lab_id.id,
                 created_at: doc.data().created_at.toDate(),
                 updated_at: doc.data().updated_at.toDate(),
                 created_by: doc.data().created_by.id,

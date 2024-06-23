@@ -16,6 +16,8 @@ exports.getUserByIdController = async (req, res) => {
         }
         //#endregion  //*======== Find user ===========
 
+        const roleData = (await data.role_id.get()).data()
+
         // omit password from result
         const {password, ...result} = {
             id: snapshot.id,
@@ -25,7 +27,8 @@ exports.getUserByIdController = async (req, res) => {
             last_login: data.last_login.toDate(),
             created_by: data.created_by.id,
             updated_by: data.updated_by.id,
-            role_id: data.role_id.id
+            role_id: data.role_id.id,
+            role_name: roleData.name
         }
 
         res.status(200).json({

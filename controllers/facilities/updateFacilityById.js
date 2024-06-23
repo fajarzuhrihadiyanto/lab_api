@@ -15,7 +15,7 @@ exports.updateFacilityByIdController = async (req, res) => {
         //#endregion  //*======== Parse request ===========
 
         //#region  //*=========== Check facility existence ===========
-        const facilityReference = db.collection('Labs').doc(id);
+        const facilityReference = db.collection('Facilities').doc(id);
         const facilitySnapshot = await facilityReference.get();
         if (!facilitySnapshot.exists) {
             return res.status(404).json({

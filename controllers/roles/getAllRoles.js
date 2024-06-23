@@ -5,7 +5,7 @@ exports.getAllRolesController = async (req, res) => {
         const result = []
 
         //#region  //*=========== Find role ===========
-        const snapshot = await db.collection('Roles').get();
+        const snapshot = await db.collection('Roles').orderBy('created_at', 'desc').get();
         snapshot.forEach((doc) => {
             result.push({
                 id: doc.id,

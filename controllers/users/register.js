@@ -13,7 +13,7 @@ exports.registerValidationHandlers = [
   body('password2')
     .isLength({ min: 8 }).withMessage('confirm password must be 8 characters length minimum'),
   body('role_id')
-      .notEmpty().withMessage('roleid cannot be empty'),
+      .notEmpty().withMessage('role id cannot be empty'),
 ]
 
 exports.registerController =  async (req, res) => {

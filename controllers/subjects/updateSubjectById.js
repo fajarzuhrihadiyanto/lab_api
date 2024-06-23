@@ -3,8 +3,6 @@ const { body } = require('express-validator')
 const db = require('../../db')
 
 exports.updateSubjectByIdValidationHandlers = [
-    body('lab_id')
-        .notEmpty().withMessage('lab id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
     body('description')
         .notEmpty().withMessage('professor id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
     body('is_compulsory')
@@ -22,23 +20,12 @@ exports.updateSubjectByIdController = async (req, res) => {
         //#region  //*=========== Parse request ===========
         const { id } = req.params
         const {
-            lab_id,
             description,
             is_compulsory,
             name,
             objective
         } = req.body
         //#endregion  //*======== Parse request ===========
-
-        //#region  //*=========== Check lab existence ===========
-        const labRef = db.collection('Labs').doc(lab_id)
-        const labSnapshot = await labRef.get()
-        if (!labSnapshot.exists) {
-            return res.status(404).json({
-                message: 'Lab not found'
-            })
-        }
-        //#endregion  //*======== Check lab existence ===========
 
         //#region  //*=========== Check subject existence ===========
         const subjectReference = db.collection('Subjects').doc(id);
@@ -52,7 +39,6 @@ exports.updateSubjectByIdController = async (req, res) => {
 
         // Update subject
         const data = {
-            lab_id: labRef,
             description,
             is_compulsory,
             name,

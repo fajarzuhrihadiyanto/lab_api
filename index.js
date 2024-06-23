@@ -75,13 +75,14 @@ const { getSubjectByIdController } = require('./controllers/subjects/getSubjectB
 const { addSubjectValidationHandlers, addSubjectController } = require('./controllers/subjects/addSubject');
 const { updateSubjectByIdValidationHandlers, updateSubjectByIdController } = require('./controllers/subjects/updateSubjectById');
 const { deleteSubjectByIdController } = require('./controllers/subjects/deleteSubjectById');
+const { updateAccessByRoleIdController, updateAccessByRoleIdValidationHandlers } = require('./controllers/roles_labs/updateAccessByRoleId');
 
 
 
 const app = express()
 
 app.use(cors())
-app.use(express.json())
+app.use(express.json({ limit: '5mb' }))
 
 // Authentication routes
 app.post('/auth/login', ...loginValidationHandlers, validationErrorHandler, loginController)
@@ -109,11 +110,9 @@ app.delete('/user/:id',
 
 // Role routes
 app.get('/roles',
-    roleValidationHandler('GET', ACCESS_ROLE),
     getAllRolesController
 )
 app.get('/role/:id',
-    roleValidationHandler('GET', ACCESS_ROLE),
     getRoleByIdController
 )
 app.post('/role',
@@ -135,11 +134,9 @@ app.delete('/role/:id',
 
 // Role lab routes
 app.get('/role_labs',
-    roleValidationHandler('GET', ACCESS_ROLE),
     getAllRolesLabsController
 )
 app.get('/role_lab/:id',
-    roleValidationHandler('GET', ACCESS_ROLE),
     getRoleLabByIdController
 )
 app.post('/role_lab',
@@ -157,6 +154,12 @@ app.put('/role_lab/:id',
 app.delete('/role_lab/:id',
     roleValidationHandler('DELETE', ACCESS_ROLE),
     deleteRoleLabByIdController
+)
+app.put('/access/:role_id',
+    roleValidationHandler('PUT', ACCESS_ROLE),
+    ...updateAccessByRoleIdValidationHandlers,
+    validationErrorHandler,
+    updateAccessByRoleIdController
 )
 
 // Book routes

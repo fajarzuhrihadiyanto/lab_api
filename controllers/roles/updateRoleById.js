@@ -1,17 +1,25 @@
-const { body } = require('express-validator')
+const { body, oneOf } = require('express-validator')
 
 const db = require('../../db')
 
 exports.updateRoleByIdValidationHandlers = [
-    body('name')
-      .notEmpty().withMessage('name cannot be empty'),
+    oneOf([
+        body('name')
+            .notEmpty().withMessage('name cannot be empty'),
+        body('is_lab_write')
+            .isBoolean().withMessage('is lab write must be a boolean'),
+        body('is_role_write')
+            .isBoolean().withMessage('is role write must be a boolean'),
+        body('is_user_write')
+            .isBoolean().withMessage('is user write must be a boolean')
+    ])
 ]
 
 exports.updateRoleByIdController = async (req, res) => {
     try {
         //#region  //*=========== Parse request ===========
         const { id } = req.params
-        const { name } = req.body
+        const { name, is_lab_write, is_role_write, is_user_write } = req.body
         //#endregion  //*======== Parse request ===========
 
         //#region  //*=========== Check role existence ===========
@@ -27,6 +35,9 @@ exports.updateRoleByIdController = async (req, res) => {
         // Update role
         const data = {
             name,
+            is_lab_write,
+            is_role_write,
+            is_user_write,
             updated_at: new Date(),
             updated_by: req.user_snapshot.ref
         }

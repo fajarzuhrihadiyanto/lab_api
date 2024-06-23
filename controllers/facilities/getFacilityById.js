@@ -19,8 +19,7 @@ exports.getFacilityByIdController = async (req, res) => {
         const result = {
             id: snapshot.id,
             ...data,
-            ab_id: data.lab_id.id,
-            lab_id: doc.data().lab_id.id,
+            lab_id: data.lab_id.id,
             created_at: data.created_at.toDate(),
             updated_at: data.updated_at.toDate(),
             created_by: data.created_by.id,

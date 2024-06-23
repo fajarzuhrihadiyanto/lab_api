@@ -19,7 +19,6 @@ exports.getLabByIdController = async (req, res) => {
         const result = {
             id: snapshot.id,
             ...data,
-            head_lab_id: data.head_lab_id.id,
             created_at: data.created_at.toDate(),
             updated_at: data.updated_at.toDate(),
             created_by: data.created_by.id,

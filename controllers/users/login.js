@@ -40,13 +40,67 @@ exports.loginController =  async (req, res) => {
     await user_snapshot.docs[0].ref.update({ last_login: new Date() })
     //#endregion  //*======== Update User Last Login ===========
 
+    //#region  //*=========== Get Access ===========
+    const access = []
+
+    const roles_snapshot = await user.role_id.get()
+    if (roles_snapshot.data().is_lab_write) {
+      access.push({
+        type: 'administrative',
+        name: 'Laboratorium',
+        url: 'laboratories'
+      })
+    }
+
+    if (roles_snapshot.data().is_role_write) {
+      access.push({
+        type: 'administrative',
+        name: 'Role',
+        url: 'roles',
+      })
+    }
+
+    if (roles_snapshot.data().is_user_write) {
+      access.push({
+        type: 'administrative',
+        name: 'User',
+        url: 'users',
+      })
+    }
+
+    const roleLabSnapshot = await db.collection('Roles_labs').where('role_id', '==', roles_snapshot.ref).get()
+    if (!roleLabSnapshot.empty) {
+      // only add lab that has write access
+      const labSnapshots = await Promise.all(
+        roleLabSnapshot.docs
+        .filter(doc => doc.data().is_write === true)
+        .map((doc) => doc.data().lab_id.get())
+      )
+
+      labSnapshots.map((labSnapshot) => {
+        const labData = labSnapshot.data()
+        access.push({
+          type: 'laboratory',
+          lab_id: labSnapshot.id,
+          name: labData.name,
+          alias: labData.alias
+        })
+      })
+    }
+
+    //#endregion  //*======== Get Access ===========
+
     //#region  //*=========== Create JSON web token ===========
-    const token = jwt.sign({ user_id: user_snapshot.docs[0].id }, process.env.JWT_SECRET_KEY)
+    const token = jwt.sign({ 
+      user_id: user_snapshot.docs[0].id,
+      access
+    }, process.env.JWT_SECRET_KEY)
     return res.json({
       message: 'Sign in succeed',
       data: {
         user: {
-          username: user.username,
+          fullname: user.fullname,
+          role: roles_snapshot.data().name,
         },
         token
       }

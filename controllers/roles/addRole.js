@@ -14,14 +14,32 @@ exports.addRoleController = async (req, res) => {
         //#endregion  //*======== Parse request ===========
 
         //#region  //*=========== Create new role ===========
-        const newRole = (await (await db.collection('Roles').add({
+        const newRoleSnapshot = (await (await db.collection('Roles').add({
             name,
             created_at: new Date(),
             updated_at: new Date(),
             created_by: req.user_snapshot.ref,
             updated_by: req.user_snapshot.ref
-        })).get()).data()
+        })).get())
+        const newRole = newRoleSnapshot.data()
         //#endregion  //*======== Create new role ===========
+
+        //#region  //*=========== Add role lab ===========
+        const labsSnapshot = await db.collection('Labs').get()
+        if (!labsSnapshot.empty) {
+            await Promise.all(labsSnapshot.docs.map(doc =>
+                db.collection('Roles_labs').add({ 
+                    is_write: false,
+                    lab_id: doc.ref,
+                    role_id: newRoleSnapshot.ref,
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                    created_by: req.user_snapshot.ref,
+                    updated_by: req.user_snapshot.ref
+                })
+            ))
+        }
+        //#endregion  //*======== Add role lab ===========
 
         res.status(201).json({
             message: 'Success',

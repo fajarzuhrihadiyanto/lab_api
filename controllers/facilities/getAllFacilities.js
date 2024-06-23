@@ -22,7 +22,7 @@ exports.getAllFacilitiesController = async (req, res) => {
         //#endregion  //*======== Check lab existence ===========
 
         //#region  //*=========== Find facilities ===========
-        let snapshot = db.collection('Facilities')
+        let snapshot = db.collection('Facilities').orderBy('created_at')
 
         // optional parameter lab_id
         if (lab_id) snapshot = snapshot.where('lab_id', '==', labRef)

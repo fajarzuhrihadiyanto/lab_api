@@ -4,9 +4,7 @@ const db = require('../../db')
 
 exports.updateBookByIdValidationHandlers = [
     body('ISBN')
-        .notEmpty().withMessage('ISBN cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
-    body('lab_id')
-        .notEmpty().withMessage('lab id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+        .isString().withMessage('ISBN must be a string').optional({ values: 'undefined', checkFalsy: true }),
     body('professor_id')
         .notEmpty().withMessage('professor id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
     body('release_city')
@@ -22,8 +20,7 @@ exports.updateBookByIdController = async (req, res) => {
         //#region  //*=========== Parse request ===========
         const { id } = req.params
         const {
-            name,
-            lab_id,
+            ISBN,
             professor_id,
             release_city,
             release_year,
@@ -31,18 +28,8 @@ exports.updateBookByIdController = async (req, res) => {
         } = req.body
         //#endregion  //*======== Parse request ===========
 
-        //#region  //*=========== Check lab existence ===========
-        const labRef = db.collection('Labs').doc(lab_id)
-        const labSnapshot = await labRef.get()
-        if (!labSnapshot.exists) {
-            return res.status(404).json({
-                message: 'Lab not found'
-            })
-        }
-        //#endregion  //*======== Check lab existence ===========
-
         //#region  //*=========== Check professor existence ===========
-        const professorRef = db.collection('Labs').doc(professor_id)
+        const professorRef = db.collection('Professors').doc(professor_id)
         const professorSnapshot = await professorRef.get()
         if (!professorSnapshot.exists) {
             return res.status(404).json({
@@ -63,8 +50,7 @@ exports.updateBookByIdController = async (req, res) => {
 
         // Update book
         const data = {
-            name,
-            lab_id: labRef,
+            ISBN,
             professor_id: professorRef,
             release_city,
             release_year,

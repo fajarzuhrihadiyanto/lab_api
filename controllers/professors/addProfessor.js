@@ -20,7 +20,7 @@ exports.addProfessorValidationHandlers = [
         .isBoolean().withMessage('is head lab must be a boolean').optional({ values: 'undefined', checkFalsy: true }),
     body('latest_education')
         .notEmpty().withMessage('latest education cannot be empty'),
-    body('photo_url')
+    body('photo')
         .notEmpty().withMessage('photo url cannot be empty'),
     body('position')
         .isArray().withMessage('position must be an array'),
@@ -32,12 +32,14 @@ exports.addProfessorValidationHandlers = [
         .isNumeric().withMessage('position to year must be a number').optional({ values: 'undefined', checkFalsy: true }),
     body('publication')
         .isObject().withMessage('publication must be an object'),
-    body('publication.scopus_id')
-        .notEmpty().withMessage('scopus id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
-    body('publication.google_scholar_id')
-        .notEmpty().withMessage('google scholar id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
-    body('publication.sinta_id')
-        .notEmpty().withMessage('sinta id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+    oneOf([
+        body('publication.scopus_id')
+            .notEmpty().withMessage('scopus id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+        body('publication.google_scholar_id')
+            .notEmpty().withMessage('google scholar id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+        body('publication.sinta_id')
+            .notEmpty().withMessage('sinta id cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+    ]),
 ]
 
 exports.addProfessorController = async (req, res) => {
@@ -51,7 +53,7 @@ exports.addProfessorController = async (req, res) => {
             lab_id,
             is_head_lab,
             latest_education,
-            photo_url,
+            photo,
             position,
             publication
         } = req.body
@@ -82,6 +84,14 @@ exports.addProfessorController = async (req, res) => {
             })
         }
         //#endregion  //*======== Check Role Lab ===========
+
+        //#region  //*=========== Upload photo to cloudinary ===========
+        const cloudinary = require('../../cloudinary')
+        const result = await cloudinary.uploader.upload(photo, {
+            folder: `skripsi/${labSnapshot.data().alias}/dosen`
+        })
+        const photo_url = result.secure_url
+        //#endregion  //*======== Upload photo to cloudinary ===========
 
         //#region  //*=========== Create new Professor ===========
         const newProfessor = (await (await db.collection('Professors').add({

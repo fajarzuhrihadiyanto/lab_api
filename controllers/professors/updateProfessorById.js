@@ -4,13 +4,13 @@ const db = require('../../db')
 
 exports.updateProfessorByIdValidationHandlers = [
     body('NIDN')
-        .isString().withMessage('name cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+        .isString().withMessage('NIDN must be a string').optional({ values: 'undefined', checkFalsy: true }),
     body('fullname')
-        .notEmpty().withMessage('general information cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+        .notEmpty().withMessage('full name cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
     oneOf([
         body('email')
-            .isEmail().withMessage('email format is not valid').optional({ values: 'undefined', checkFalsy: true }),
-        body('email').isLength({ min: 0, max: 0})
+            .isEmail(),
+        body('email').isEmpty()
     ]),
     body('initial')
         .notEmpty().withMessage('initial cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
@@ -20,8 +20,8 @@ exports.updateProfessorByIdValidationHandlers = [
         .isBoolean().withMessage('is head lab must be a boolean').optional({ values: 'undefined', checkFalsy: true }),
     body('latest_education')
         .notEmpty().withMessage('latest education cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
-    body('photo_url')
-        .notEmpty().withMessage('photo url cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
+    body('photo')
+        .isString().withMessage('photo cannot be empty').optional({ values: 'undefined', checkFalsy: true }),
     body('position')
         .isArray().withMessage('position must be an array').optional({ values: 'undefined', checkFalsy: true }),
     body('position.*.name')
@@ -52,11 +52,21 @@ exports.updateProfessorByIdController = async (req, res) => {
             lab_id,
             is_head_lab,
             latest_education,
-            photo_url,
+            photo,
             position,
             publication
         } = req.body
         //#endregion  //*======== Parse request ===========
+
+        //#region  //*=========== Check lab existence ===========
+        const labRef = db.collection('Labs').doc(lab_id)
+        const labSnapshot = await labRef.get()
+        if (!labSnapshot.exists) {
+            return res.status(404).json({
+                message: 'Lab not found'
+            })
+        }
+        //#endregion  //*======== Check lab existence ===========
 
         //#region  //*=========== Check professor existence ===========
         const professorReference = db.collection('Professors').doc(id);
@@ -68,15 +78,17 @@ exports.updateProfessorByIdController = async (req, res) => {
         }
         //#endregion  //*======== Check professor existence ===========
 
-        //#region  //*=========== Check lab existence ===========
-        const labReference = db.collection('Labs').doc(lab_id);
-        const labSnapshot = await labReference.get();
-        if (!labSnapshot.exists) {
-            return res.status(404).json({
-                message: 'Lab not found'
+        //#region  //*=========== Upload photo to cloudinary if exist ===========
+        const cloudinary = require('../../cloudinary')
+
+        let photo_url
+        if (photo) {
+            const result = await cloudinary.uploader.upload(photo, {
+                folder: `skripsi/${labSnapshot.data().alias}/dosen`
             })
+            photo_url = result.secure_url
         }
-        //#endregion  //*======== Check lab existence ===========
+        //#endregion  //*======== Upload photo to cloudinary if exist ===========
 
         // Update professor
         const data = {
@@ -84,7 +96,6 @@ exports.updateProfessorByIdController = async (req, res) => {
             fullname,
             email,
             initial,
-            lab_id: labReference,
             is_head_lab,
             latest_education,
             photo_url,

@@ -26,20 +26,29 @@ exports.addFacilityController = async (req, res) => {
         //#endregion  //*======== Check lab existence ===========
 
         //#region  //*=========== Create new facility ===========
-        const newFacility = await db.collection('Facilities').add({
+        const newFacilitySnapshot = await (await db.collection('Facilities').add({
             name,
             lab_id: labRef,
             created_at: new Date(),
             updated_at: new Date(),
             created_by: req.user_snapshot.ref,
             updated_by: req.user_snapshot.ref
-        })
+        })).get()
+        const newFacility = newFacilitySnapshot.data()
         //#endregion  //*======== Create new facility ===========
 
         res.status(201).json({
             message: 'Success',
             data: {
-                facility: newFacility
+                facility: {
+                    ...newFacility,
+                    id: newFacilitySnapshot.id,
+                    created_at: newFacility.created_at.toDate(),
+                    updated_at: newFacility.updated_at.toDate(),
+                    created_by: newFacility.created_by.id,
+                    updated_by: newFacility.updated_by.id,
+                    lab_id: newFacility.lab_id.id
+                }
             }
         })
     } catch (err) {

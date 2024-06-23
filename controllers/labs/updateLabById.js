@@ -6,8 +6,12 @@ exports.updateLabByIdValidationHandlers = [
     oneOf([
         body('name')
             .notEmpty().withMessage('name cannot be empty'),
+        body('alias')
+            .notEmpty().withMessage('alias cannot be empty'),        
         body('general_information')
             .notEmpty().withMessage('general information cannot be empty'),
+        body('website')
+            .isString().withMessage('website must be a string'),
     ])
 ]
 
@@ -15,7 +19,7 @@ exports.updateLabByIdController = async (req, res) => {
     try {
         //#region  //*=========== Parse request ===========
         const { id } = req.params
-        const { name, general_information } = req.body
+        const { name, alias, website, general_information } = req.body
         //#endregion  //*======== Parse request ===========
 
         //#region  //*=========== Check lab existence ===========
@@ -32,6 +36,8 @@ exports.updateLabByIdController = async (req, res) => {
         // Update lab
         const data = {
             name: name || snapshotData.name,
+            alias: alias || snapshotData.alias,
+            website: website || snapshotData.website,
             general_information: general_information || snapshotData.general_information,
             updated_at: new Date(),
             updated_by: req.user_snapshot.ref

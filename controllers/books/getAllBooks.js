@@ -22,7 +22,7 @@ exports.getAllBooksController = async (req, res) => {
         //#endregion  //*======== Check lab existence ===========
 
         //#region  //*=========== Find books ===========
-        let snapshot = db.collection('Books')
+        let snapshot = db.collection('Books').orderBy('release_year', 'desc')
 
         // optional parameter lab_id
         if (lab_id) snapshot = snapshot.where('lab_id', '==', labRef)
