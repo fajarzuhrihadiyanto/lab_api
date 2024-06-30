@@ -70,7 +70,7 @@ exports.addBookController = async (req, res) => {
         //#endregion  //*======== Check Role Lab ===========
 
         //#region  //*=========== Create new book ===========
-        const newBook = (await (await db.collection('Books').add({
+        const newBookSnapshot = (await (await db.collection('Books').add({
             ISBN,
             lab_id: labRef,
             professor_id: professorRef,
@@ -81,7 +81,8 @@ exports.addBookController = async (req, res) => {
             updated_at: new Date(),
             created_by: req.user_snapshot.ref,
             updated_by: req.user_snapshot.ref
-        })).get()).data()
+        })).get())
+        const newBook = newBookSnapshot.data()
         //#endregion  //*======== Create new book ===========
 
         res.status(201).json({
@@ -89,6 +90,7 @@ exports.addBookController = async (req, res) => {
             data: {
                 book: {
                     ...newBook,
+                    id: newBookSnapshot.id,
                     lab_id: newBook.lab_id.id,
                     professor_id: newBook.professor_id?.id,
                     created_at: newBook.created_at.toDate(),

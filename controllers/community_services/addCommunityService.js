@@ -51,7 +51,7 @@ exports.addCommunityServiceController = async (req, res) => {
         //#endregion  //*======== Check professor existence ===========
 
         //#region  //*=========== Create new community service ===========
-        const newCommunityService = (await (await db.collection('Community_services').add({
+        const newCommunityServiceSnapshot = (await (await db.collection('Community_services').add({
             community_service_type,
             lab_id: labRef,
             professor_id: professorRef,
@@ -61,7 +61,8 @@ exports.addCommunityServiceController = async (req, res) => {
             updated_at: new Date(),
             created_by: req.user_snapshot.ref,
             updated_by: req.user_snapshot.ref
-        })).get()).data()
+        })).get())
+        const newCommunityService = newCommunityServiceSnapshot.data()
         //#endregion  //*======== Create new community service ===========
 
         res.status(201).json({
@@ -69,6 +70,7 @@ exports.addCommunityServiceController = async (req, res) => {
             data: {
                 community_service: {
                     ...newCommunityService,
+                    id: newCommunityServiceSnapshot.id,
                     lab_id: newCommunityService.lab_id.id,
                     professor_id: newCommunityService.professor_id?.id,
                     created_at: newCommunityService.created_at.toDate(),

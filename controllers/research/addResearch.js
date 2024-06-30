@@ -51,7 +51,7 @@ exports.addResearchController = async (req, res) => {
         //#endregion  //*======== Check professor existence ===========
 
         //#region  //*=========== Create new research ===========
-        const newResearch = (await (await db.collection('Research').add({
+        const newResearchSnapshot = (await (await db.collection('Research').add({
             research_type,
             lab_id: labRef,
             professor_id: professorRef,
@@ -61,7 +61,8 @@ exports.addResearchController = async (req, res) => {
             updated_at: new Date(),
             created_by: req.user_snapshot.ref,
             updated_by: req.user_snapshot.ref
-        })).get()).data()
+        })).get())
+        const newResearch = newResearchSnapshot.data()
         //#endregion  //*======== Create new research ===========
 
         res.status(201).json({
@@ -69,7 +70,7 @@ exports.addResearchController = async (req, res) => {
             data: {
                 research: {
                     ...newResearch,
-                    id: newResearch.id,
+                    id: newResearchSnapshot.id,
                     lab_id: newResearch.lab_id.id,
                     professor_id: newResearch.professor_id?.id,
                     created_at: newResearch.created_at.toDate(),
